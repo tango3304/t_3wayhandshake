@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "t_3wayhandshake"
+version = "1.0.0"
+description = "self-made 3way handshake"
+requires-python = ">=3.0"
+license = {file = "LICENSE"}
+readme = "README.md"
+dependencies = [
+    "t_argchecksum @ git+https://github.com/tango3304/t_argchecksum.git",
+    "scapy",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
