@@ -7,7 +7,7 @@ from datetime import datetime
 from scapy.layers.l2 import Ether
 from scapy.layers.inet import IP
 from scapy.layers.inet import TCP
-from module import t_mixmodule.HexadecimalConversion
+from .module import t_mixmodule
 from t_argchecksum.t_argchecksum import MyCheckSum
 from itertools import repeat
 
