@@ -8,7 +8,7 @@ from scapy.layers.l2 import Ether
 from scapy.layers.inet import IP
 from scapy.layers.inet import TCP
 from module import t_mixmodule
-import t_argchecksum
+from t_argchecksum.t_argchecksum import MyCheckSum
 from itertools import repeat
 
 # Header for each layer
@@ -121,7 +121,7 @@ class Header:
 			# TCP header
 			# TCPヘッダ
 			syn_tcp_header_tmp = syn_pseudoIP_header + syn_tcp_header_len_tmp
-			syn_tcp_checksum   = t_argchecksum.MyCheckSum(syn_tcp_header_tmp).iptcp_header_module().to_bytes(2, 'big')
+			syn_tcp_checksum   = MyCheckSum(syn_tcp_header_tmp).iptcp_header_module().to_bytes(2, 'big')
 			syn_tcp_header     = SOURCE_PORT + destination_port + SEQUENCE_NUMBER + ACKNOWLEDGMENT_NUMBER + HEADER_LENGTH + FLAGS + WINDOW + syn_tcp_checksum +\
 						 		 URGENT_POINTER + OPTION_MAXIMUM_SEGMENT + OPTION_SACK_PERMITTED + OPTION_TIMESTAMPS + OPTION_NO_OPERATION + OPTION_WINDOW_SCALE
 
@@ -134,7 +134,7 @@ class Header:
 			syn_ip_header_tmp = None
 			syn_ip_header_tmp = VERSION_AND_HEADER_LENGTH + DIFFERENTIATED_SERVICES + syn_total_length + IDENTIFICATION + FLAGS_AND_FLAGMENT_OFFSET +\
 								TTL + PROTCOL + ip_checksum + sip_addr + dip_addr
-			syn_ip_checksum   = t_argchecksum.MyCheckSum(syn_ip_header_tmp).iptcp_header_module().to_bytes(2, 'big')
+			syn_ip_checksum   = MyCheckSum(syn_ip_header_tmp).iptcp_header_module().to_bytes(2, 'big')
 			syn_ip_header     = VERSION_AND_HEADER_LENGTH + DIFFERENTIATED_SERVICES + syn_total_length + IDENTIFICATION + FLAGS_AND_FLAGMENT_OFFSET +\
 								TTL + PROTCOL + syn_ip_checksum + sip_addr + dip_addr
 			syn_iptcp_header  = syn_ip_header + syn_tcp_header
@@ -196,7 +196,7 @@ class Header:
 			# TCP header
 			# TCPヘッダ
 			ack_tcp_header_tmp = ack_pseudoIP_header + ack_tcp_header_len_tmp
-			ack_tcp_checksum   = t_argchecksum.MyCheckSum(ack_tcp_header_tmp).iptcp_header_module().to_bytes(2, 'big')
+			ack_tcp_checksum   = MyCheckSum(ack_tcp_header_tmp).iptcp_header_module().to_bytes(2, 'big')
 			ack_tcp_header     = SOURCE_PORT + DESTINATION_PORT + SEQUENCE_NUMBER + ACKNOWLEDGMENT_NUMBER + HEADER_LENGTH + FLAGS +\
 						 		 WINDOW + ack_tcp_checksum + URGENT_POINTER + OPTION_NO_OPERATION + OPTION_NO_OPERATION + OPTION_TIMESTAMPS
 			
@@ -209,7 +209,7 @@ class Header:
 			ack_ip_header_tmp = None
 			ack_ip_header_tmp = VERSION_AND_HEADER_LENGTH + DIFFERENTIATED_SERVICES + ack_total_length + IDENTIFICATION +\
 								FLAGS_AND_FLAGMENT_OFFSET +TTL + PROTCOL + ip_checksum + sip_addr + dip_addr
-			ack_ip_checksum   = t_argchecksum.MyCheckSum(ack_ip_header_tmp).iptcp_header_module().to_bytes(2, 'big')
+			ack_ip_checksum   = MyCheckSum(ack_ip_header_tmp).iptcp_header_module().to_bytes(2, 'big')
 			ack_ip_header     = VERSION_AND_HEADER_LENGTH + DIFFERENTIATED_SERVICES + ack_total_length + IDENTIFICATION + FLAGS_AND_FLAGMENT_OFFSET +\
 								TTL + PROTCOL + ack_ip_checksum + sip_addr + dip_addr
 			ack_iptcp_header  = ack_ip_header + ack_tcp_header
@@ -268,7 +268,7 @@ class Analysis:
 				# Checksum Calculation
 				# チェックサム計算
 				tcp_chksum_tmp   = pseudoIP_header + checksum_tcp_header
-				check_tcp_chksum = t_argchecksum.MyCheckSum(tcp_chksum_tmp).iptcp_header_module().to_bytes(2, 'big')
+				check_tcp_chksum = MyCheckSum(tcp_chksum_tmp).iptcp_header_module().to_bytes(2, 'big')
 
 				if receive_tcp_chksum == check_tcp_chksum:
 					recv_sequence       = TCP(tcp_header_tmp).seq
