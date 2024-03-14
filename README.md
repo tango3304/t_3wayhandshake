@@ -5,7 +5,7 @@ self-made 3way handshake module
 
 # Install
 
-pip install git+https://github.com/tango3304/t_argchecksum.git
+pip install git+https://github.com/tango3304/t_3wayhandshake.git
 
 # Argument
 ◇Send Syn Packet Argument
