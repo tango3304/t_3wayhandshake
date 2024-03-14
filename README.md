@@ -3,6 +3,10 @@ self-made 3way handshake module
 
 自作3ウェイハンドシェイクモジュール
 
+# Install
+
+pip install git+https://github.com/tango3304/t_argchecksum.git
+
 # Argument
 ◇Send Syn Packet Argument
 
