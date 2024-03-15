@@ -1,7 +1,7 @@
 # Outline
 self-made 3way handshake module
 
-Executable only on Linux OS
+Check Execution on Manjaro
 
 # Install
 pip install git+https://github.com/tango3304/t_3wayhandshake.git
@@ -28,7 +28,7 @@ Return Value: Ack IntegerID
 # 概要
 自作3ウェイハンドシェイクモジュール
 
-LinuxOSでのみ実行可能
+Manjaroでの実行を確認
 
 # インストール
 pip install git+https://github.com/tango3304/t_3wayhandshake.git
