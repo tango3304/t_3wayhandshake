@@ -1,10 +1,9 @@
-# t_3wayhandshake
+# Outline
 self-made 3way handshake module
 
-自作3ウェイハンドシェイクモジュール
+Executable only on Linux OS
 
 # Install
-
 pip install git+https://github.com/tango3304/t_3wayhandshake.git
 
 # Argument
@@ -25,6 +24,14 @@ Return Value: Receive IP/TCP header, Receive Source MACaddress
 Argument ([0]:Receive IP/TCP header [1]:My MACaddress [2]:Receive Source MACaddress [3]:Syn packet IntegerID [4]:My InterfaceSend)
 
 Return Value: Ack IntegerID
+
+# 概要
+自作3ウェイハンドシェイクモジュール
+
+LinuxOSでのみ実行可能
+
+# インストール
+pip install git+https://github.com/tango3304/t_3wayhandshake.git
 
 # 引数
 ◇送信 Synパケット引数
