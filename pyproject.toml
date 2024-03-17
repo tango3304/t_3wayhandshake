@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "t_3wayhandshake"
-version = "1.0.1"
+version = "1.0.2"
 description = "self-made 3way handshake"
 requires-python = ">=3.0"
 license = {file = "LICENSE"}
