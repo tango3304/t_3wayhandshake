@@ -246,11 +246,16 @@ class Analysis:
 		def tcp_header_analysis(self):
 			ZERO          = b'\x00'
 			ip_header_len = 20
+			RST_ACK_FLAGS = 'RA'
 
 			for increment in repeat(1, self.ip_tcp_header_len - ip_header_len):
 				# Get Receive TCPheader Checksum
 				# 受信TCPヘッダのチェックサムを取得
 				tcp_header_tmp     = self.ip_tcp_header[ip_header_len:self.ip_tcp_header_len]
+				tcp_header_flags = TCP(tcp_header_tmp).flags
+				if tcp_header_flags == RST_ACK_FLAGS:
+					print(f'Receive RST/ACK Packet\n')
+					exit(1)
 				receive_tcp_chksum = TCP(tcp_header_tmp).chksum.to_bytes(2, 'big')
 
 				# Reset Receive TCPheader Checksum
@@ -282,7 +287,7 @@ class Analysis:
 						option_menu = recv_option_tmp[option_count][0]
 						if option_menu == 'Timestamp':
 							recv_timestamp = recv_option_tmp[option_count][1][0]
-					return recv_sequence, recv_acknowledgment, recv_timestamp
+							return recv_sequence, recv_acknowledgment, recv_timestamp
 				elif ip_header_len < 40:
 					ip_header_len += increment
 				else:
@@ -336,6 +341,7 @@ class HandshakeSend:
 			conditional_branch_list = [self.destination_mac_address, PROTOCOL_NUMBER, self.destination_port]
 			SOCKET_BUFFSIZE         = 4096
 			ETH_P_IP                = 0x0800
+			ETHERNET_LEN            = 14
 
 			# Create Syn packet
 			# Synパケット作成
@@ -362,14 +368,18 @@ class HandshakeSend:
 
 					# Conditional branch ([0]:The other person MACaddress [1]:Protocol [2]:The other person Port)
 					# 条件分岐 ([0]:相手のMACアドレス [1]:プロトコル [2]:相手のポート)
-					if receive_src_macaddress in conditional_branch_list and receive_protocol in conditional_branch_list and receive_sport in conditional_branch_list:
+					if receive_src_macaddress in conditional_branch_list and receive_protocol in conditional_branch_list and receive_sport in conditional_branch_list :
 						# Get IP/TCP header
 						# IP/TCPヘッダを取得
 						receive_header_all_len   = len(Ether(receive_packet))
 						receive_iptcp_header_len = Ether(receive_packet).len
 						receive_header_eth_len   = receive_header_all_len - receive_iptcp_header_len
-						receive_iptcp_header     = receive_packet[receive_header_eth_len:(receive_iptcp_header_len + receive_header_eth_len)]
-						return syn_id_int, receive_iptcp_header, receive_src_macaddress
+						if receive_header_eth_len == ETHERNET_LEN:
+							receive_iptcp_header = receive_packet[receive_header_eth_len:(receive_iptcp_header_len + receive_header_eth_len)]
+							return syn_id_int, receive_iptcp_header, receive_src_macaddress
+						else:
+							receive_iptcp_header = receive_packet[ETHERNET_LEN:(receive_iptcp_header_len + ETHERNET_LEN)]
+							return syn_id_int, receive_iptcp_header, receive_src_macaddress
 	
 		# Send Ack Packet
 		# Ackパケットを送信
@@ -394,7 +404,7 @@ class HandshakeSend:
 			# ACKパケット作成
 			# 引数 ([0]:送信_送信元MACアドレス [1]:受信_送信元MACアドレス)
 			# 戻り値: Ack EthernetIIヘッダ
-			ack_ethII_header  = Header(self.source_mac_address, self.destination_mac_address).ethernetII()
+			ack_ethII_header = Header(self.source_mac_address, self.destination_mac_address).ethernetII()
 
 			# Argument ([0]:Source IPaddress [1]:Destination IPadress [2]:Source Port [3]Destination Port [4]:Receive Sequence [5]:Receive Acknowledgment [6]Syn ID Integer [7]:Receive Timestamp)
 			# Return Value: Ack IP/TCPheader and Ack IntegerID
@@ -414,6 +424,9 @@ class HandshakeSend:
 		# (Ctrl + c) 処理
 		print(f'\nProcess Interrupted')
 		print(f'処理を中断しました')
+		exit(1)
+	except ValueError:
+		print(f'fdads')
 		exit(1)
 	except:
 		# Get ErrorMessage
