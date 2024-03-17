@@ -38,7 +38,7 @@ Manjaroでの実行を確認<br>
 pip install git+https://github.com/tango3304/t_3wayhandshake.git
 
 # 引数
-<h3>◇送受信パケットの引数</h3>
+<h3>◆送受信パケットの引数</h3>
 【引数】<br>
 [0]:自身のMACアドレス<br>
 [1]:相手のMACアドレス<br>
@@ -50,7 +50,7 @@ pip install git+https://github.com/tango3304/t_3wayhandshake.git
 <br>【戻り値】<br>
 Syn 整数ID、受信IP/TCPヘッダ、相手のMACアドレス<br>
 
-<h3>◇送信 Ackパケット引数</h3>
+<h3>◆送信 Ackパケット引数</h3>
 【引数】<br>
 [0]:受信_IP/TCPヘッダ<br>
 [1]:自身のMACアドレス<br>
