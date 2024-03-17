@@ -331,20 +331,46 @@ class HandshakeSend:
 				
 		# Send Syn Packet
 		# Synパケットを送信
-		def send_syn(self):
+		def send_receive_packet(self):
+			PROTOCOL_NUMBER         = 6
+			conditional_branch_list = [self.destination_mac_address, PROTOCOL_NUMBER, self.destination_port]
+			SOCKET_BUFFSIZE         = 4096
+			ETH_P_IP                = 0x0800
+
 			# Create Syn packet
 			# Synパケット作成
 			syn_ethII_header              = Header(self.source_mac_address, self.destination_mac_address).ethernetII()
 			syn_ip_tcp_header, syn_id_int = Header(self.source_ip_address, self.destination_ip_address, self.destination_port).syn_ip_tcp()
 			send_syn_packet               = syn_ethII_header + syn_ip_tcp_header
 
-			# Send Syn packet
-			# Synパケット送信
-			with socket.socket(socket.AF_PACKET, socket.SOCK_RAW) as sock:
+			# Socket Connect
+			# ソケット接続
+			with socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_IP)) as sock:
 				sock.bind((self.source_interface, 0))
-				sock.send(send_syn_packet)
-			return syn_id_int
 
+				# Send Syn packet
+				# Synパケット送信
+				sock.send(send_syn_packet)
+
+				while True:
+					# Receive Packet
+					# パケット受信
+					receive_packet         = sock.recv(SOCKET_BUFFSIZE)
+					receive_src_macaddress = Ether(receive_packet).src
+					receive_protocol       = Ether(receive_packet).proto
+					receive_sport          = Ether(receive_packet).sport
+
+					# Conditional branch ([0]:The other person MACaddress [1]:Protocol [2]:The other person Port)
+					# 条件分岐 ([0]:相手のMACアドレス [1]:プロトコル [2]:相手のポート)
+					if receive_src_macaddress in conditional_branch_list and receive_protocol in conditional_branch_list and receive_sport in conditional_branch_list:
+						# Get IP/TCP header
+						# IP/TCPヘッダを取得
+						receive_header_all_len   = len(Ether(receive_packet))
+						receive_iptcp_header_len = Ether(receive_packet).len
+						receive_header_eth_len   = receive_header_all_len - receive_iptcp_header_len
+						receive_iptcp_header     = receive_packet[receive_header_eth_len:(receive_iptcp_header_len + receive_header_eth_len)]
+						return syn_id_int, receive_iptcp_header, receive_src_macaddress
+	
 		# Send Ack Packet
 		# Ackパケットを送信
 		def send_ack(self):
@@ -383,70 +409,6 @@ class HandshakeSend:
 				sock.bind((self.source_interface, 0))
 				sock.send(send_ack_packet)
 			return ack_id_int
-	except KeyboardInterrupt:
-		# (Ctrl + c) Process
-		# (Ctrl + c) 処理
-		print(f'\nProcess Interrupted')
-		print(f'処理を中断しました')
-		exit(1)
-	except:
-		# Get ErrorMessage
-		# エラーメッセージ取得
-		exc_type, exc_message, _ = exc_info()
-		exc_list                 = format_exception_only(exc_type, exc_message)
-		error_message            = ''.join(exc_message for exc_message in exc_list)
-		print(f'{error_message}')
-		exit(1)
-
-
-# Receive Socket
-# 受信ソケット
-class HandshakeReceive:
-	try:
-		def __init__(self, macaddress, ipaddress, destination_port, interface):
-			t_mixmodule.CheckAddress(macaddress).mac()
-			t_mixmodule.CheckAddress(ipaddress).ip()
-			self.send_dest_macaddress = macaddress
-			self.send_dest_ipaddress  = ipaddress
-			self.send_dest_port       = destination_port
-			self.recv_interface         = interface
-
-		# Receive Syn/Ack Packet
-		# Syn/Ack パケット受信
-		def receive_synack(self):
-			SOCKET_BUFFSIZE = 4096
-			ETH_P_IP        = 0x0800
-			conditional_branch_list = [self.send_dest_macaddress, 6, self.send_dest_port]
-
-			with socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_IP)) as sock:
-				sock.bind((self.recv_interface, 0))
-				for timeout_count in range(11):
-					receive_packet         = sock.recv(SOCKET_BUFFSIZE)
-					receive_src_macaddress = Ether(receive_packet).src
-					receive_protocol       = Ether(receive_packet).proto
-					receive_sport          = Ether(receive_packet).sport
-				
-					if timeout_count == 10:
-						print(f'Time out')
-						print(f'タイムアウト')
-						exit(1)
-					# Conditional branch ([0]:The other person MACaddress [1]:Protocol [2]:The other person Port)
-					# 条件分岐 ([0]:相手のMACアドレス [1]:プロトコル [2]:相手のポート)
-					elif receive_src_macaddress in conditional_branch_list and receive_protocol in conditional_branch_list and receive_sport in conditional_branch_list:
-							# Get IP/TCP header
-							# IP/TCPヘッダを取得
-							receive_header_all_len   = len(Ether(receive_packet))
-							receive_iptcp_header_len = Ether(receive_packet).len
-							receive_header_eth_len   = receive_header_all_len - receive_iptcp_header_len
-							receive_iptcp_header     = receive_packet[receive_header_eth_len:(receive_iptcp_header_len + receive_header_eth_len)]
-							receive_src_ipaddress    = IP(receive_iptcp_header).src
-
-							if self.send_dest_ipaddress != receive_src_ipaddress:
-								print(f"The other person IPaddress don't match Send and Receive")
-								print(f'送信と受信の相手のIPアドレスが一致しません')
-								exit(1)
-							break
-				return receive_iptcp_header, receive_src_macaddress
 	except KeyboardInterrupt:
 		# (Ctrl + c) Process
 		# (Ctrl + c) 処理
